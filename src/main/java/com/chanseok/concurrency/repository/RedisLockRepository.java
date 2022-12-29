@@ -1,4 +1,4 @@
-package com.chanseok.stock.repository;
+package com.chanseok.concurrency.repository;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,7 @@
-package com.chanseok.stock.service;
+package com.chanseok.concurrency.service;
 
-import com.chanseok.stock.domain.Stock;
-import com.chanseok.stock.repository.StockRepository;
+import com.chanseok.concurrency.domain.Product;
+import com.chanseok.concurrency.repository.ProductRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,38 +15,26 @@ import java.util.concurrent.Executors;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-class PessimisticLockStockServiceTest {
+class PessimisticLockProductServiceTest {
     @Autowired
-    PessimisticLockStockService pessimisticLockStockService;
+    PessimisticLockProductService pessimisticLockProductService;
 
     @Autowired
-    StockRepository stockRepository;
+    ProductRepository productRepository;
 
     @BeforeEach
     public void before() {
-        Stock stock = new Stock(1L, 100L);
-        stockRepository.saveAndFlush(stock);
+        Product product = new Product(1L, 100L);
+        productRepository.saveAndFlush(product);
     }
 
     @AfterEach
     public void after() {
-        stockRepository.deleteAll();
+        productRepository.deleteAll();
     }
 
     @Test
-    public void stock_decrease() {
-        pessimisticLockStockService.decrease(1L, 1L);
-
-        Stock stock = stockRepository.findById(1L).orElseThrow();
-
-        assertEquals(99, stock.getQuantity());
-    }
-
-    /**
-     * select from ~ for update
-     */
-    @Test
-    public void 동시의_100개_요청() throws InterruptedException {
+    public void PessimisticLock() throws InterruptedException {
         int threadCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
@@ -54,7 +42,7 @@ class PessimisticLockStockServiceTest {
         for(int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    pessimisticLockStockService.decrease(1L, 1L);
+                    pessimisticLockProductService.decrease(1L, 1L);
                 } finally {
                     latch.countDown();
                 }
@@ -63,7 +51,7 @@ class PessimisticLockStockServiceTest {
 
         latch.await();
 
-        Stock stock = stockRepository.findById(1L).orElseThrow();
-        assertEquals(0L, stock.getQuantity());
+        Product product = productRepository.findById(1L).orElseThrow();
+        assertEquals(0L, product.getQuantity());
     }
 }

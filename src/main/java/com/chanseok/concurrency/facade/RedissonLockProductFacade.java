@@ -1,6 +1,6 @@
-package com.chanseok.stock.facade;
+package com.chanseok.concurrency.facade;
 
-import com.chanseok.stock.service.StockService;
+import com.chanseok.concurrency.service.ProductService;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Component;
@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.TimeUnit;
 
 @Component
-public class RedissonLockStockFacade {
+public class RedissonLockProductFacade {
 
     private RedissonClient redissonClient;
-    private StockService stockService;
+    private ProductService productService;
 
-    public RedissonLockStockFacade(RedissonClient redissonClient, StockService stockService) {
+    public RedissonLockProductFacade(RedissonClient redissonClient, ProductService productService) {
         this.redissonClient = redissonClient;
-        this.stockService = stockService;
+        this.productService = productService;
     }
 
     public void decrease(Long key, Long quantity) {
@@ -29,7 +29,7 @@ public class RedissonLockStockFacade {
                 return;
             }
 
-            stockService.decrease(key, quantity);
+            productService.decrease(key, quantity);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } finally {

@@ -1,12 +1,12 @@
-package com.chanseok.stock.domain;
+package com.chanseok.concurrency.domain;
 
 import javax.persistence.*;
 
 @Entity
-public class Stock {
+public class Product {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long no;
 
     private Long productId;
 
@@ -15,10 +15,10 @@ public class Stock {
     @Version
     private Long version;
 
-    public Stock() {
+    public Product() {
     }
 
-    public Stock(Long productId, Long quantity) {
+    public Product(Long productId, Long quantity) {
         this.productId = productId;
         this.quantity = quantity;
     }

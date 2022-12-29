@@ -1,4 +1,4 @@
-package com.chanseok.stock;
+package com.chanseok.concurrency;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

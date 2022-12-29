@@ -1,10 +1,10 @@
-package com.chanseok.stock.repository;
+package com.chanseok.concurrency.repository;
 
-import com.chanseok.stock.domain.Stock;
+import com.chanseok.concurrency.domain.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface LockRepository extends JpaRepository<Stock, Long> {
+public interface LockRepository extends JpaRepository<Product, Long> {
 
     @Query(value = "select get_lock(:key, 3000)", nativeQuery = true)
     void getLock(String key);
