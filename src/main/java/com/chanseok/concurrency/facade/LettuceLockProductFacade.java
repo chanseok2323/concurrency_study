@@ -2,19 +2,15 @@ package com.chanseok.concurrency.facade;
 
 import com.chanseok.concurrency.repository.RedisLockRepository;
 import com.chanseok.concurrency.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class LettuceLockProductFacade {
+    private final RedisLockRepository redisLockRepository;
 
-    private RedisLockRepository redisLockRepository;
-
-    private ProductService productService;
-
-    public LettuceLockProductFacade(RedisLockRepository redisLockRepository, ProductService productService) {
-        this.redisLockRepository = redisLockRepository;
-        this.productService = productService;
-    }
+    private final ProductService productService;
 
     public void decrease(Long key, Long quantity) throws InterruptedException {
         while (!redisLockRepository.lock(key)) {

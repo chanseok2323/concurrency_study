@@ -2,16 +2,15 @@ package com.chanseok.concurrency.service;
 
 import com.chanseok.concurrency.domain.Product;
 import com.chanseok.concurrency.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class OptimisticLockProductService {
 
     private final ProductRepository productRepository;
-    public OptimisticLockProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
 
     @Transactional
     public void decrease(Long id, Long quantity) {

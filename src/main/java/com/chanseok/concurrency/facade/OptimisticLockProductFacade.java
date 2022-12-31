@@ -1,16 +1,13 @@
 package com.chanseok.concurrency.facade;
 
 import com.chanseok.concurrency.service.OptimisticLockProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class OptimisticLockProductFacade {
-
-    private OptimisticLockProductService optimisticLockProductService;
-
-    public OptimisticLockProductFacade(OptimisticLockProductService optimisticLockProductService) {
-        this.optimisticLockProductService = optimisticLockProductService;
-    }
+    private final OptimisticLockProductService optimisticLockProductService;
 
     public void decrease(Long id, Long quantity) throws InterruptedException {
         while (true) {

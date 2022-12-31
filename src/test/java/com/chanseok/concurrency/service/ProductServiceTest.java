@@ -55,4 +55,5 @@ class ProductServiceTest {
         Product product = productRepository.findById(1L).orElseThrow();
         assertNotEquals(0L, product.getQuantity());
     }
+
 }

@@ -2,19 +2,16 @@ package com.chanseok.concurrency.facade;
 
 import com.chanseok.concurrency.repository.LockRepository;
 import com.chanseok.concurrency.service.ProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class NamedLockProductFacade {
-
     private final LockRepository lockRepository;
 
     private final ProductService productService;
 
-    public NamedLockProductFacade(LockRepository lockRepository, ProductService productService) {
-        this.lockRepository = lockRepository;
-        this.productService = productService;
-    }
 
     public void decrease(Long id, Long quantity) {
         try {

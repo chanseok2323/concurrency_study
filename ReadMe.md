@@ -14,8 +14,9 @@
   - 트랜잭션 시작 -> target 호출 후 트랜잭션 커밋 or 롤백 시 다른 스레드에서 해당 target 을 호출 할 수 있는 동시성 문제가 발생
 - 해당 문제는 SynchronizedTransactionProductService 클래스에서 해결
   - synchronized 키워드를 통해서 SynchronizedTransactionProductService.decrease 를 동기화를 한 후, ProductService.decrease 호출(트랜잭션 처리)
+- 하지만 실무에서는 서버를 다중화 하여 부하를 분산하고 있으며, 이런 분산 환경에서는 synchronized 키워드를 이용하여 동시성을 제어하기에는 힘들다.
 
-## TABLE Lock
+## DB Lock
 1. Pessimistic Lock
    - 자원에 대한 동시 요청이 발생하여 일관성에 문제가 생길 것이라고 비관적으로 생각하고 이를 방지 하기 위해 우선 락을 거는 방식
      - 실제 데이터에 Lock을 걸어서 정합성을 맞추는 방법, exclusive lock 을 걸게 되면 다른 트랜잭션에서는 lock에 해제되기 전에 데이터를 가져갈 수 없게 됩니다. 데드락이 걸릴 수 있기 떄문에 주의
@@ -36,3 +37,24 @@
    - 이름을 가진 metadata locking, 이름을 가진 lock 획득 한 후 해제할 때까지 다른 세션은 이 lock 을 획득할 수 없도록 한다. 주의 할 점으로는 transaction 이 종료 될 때, lock이 자동으로 해제되지 않습니다. 별도의 명령어로 해제를 수행해주거나 선점시간이 끝나야 해제
       - GET_LOCK('WORD') : 함수를 통해서 임의의 문자열에 대해 잠금 설정
       - RELEASE_LOCK('WORD') : 임의의 문자열에 대해 획득했던 잠금 해제
+
+## Redis를 이용한 분산 락 구현
+분산락 이란?
+    - 여러 서버에서 공유된 데이터를 제어하기 위한 기술
+
+1. Lettuce
+    - setnx 명령어를 활용하여 분산락 구현
+        - setnx : key/value를 set 할 때, 기존의 값이 없을 때 set 하는 명령어
+    - spin lock 방식으로 개발자가 retry 로직 개발 필요
+   spin lock : lock 을 획득하려는 thread 가 lock 을 사용 할 수 있는지 반복적으로 확인하면서 lock 을 획득하려는 방식
+    - 구현이 간단하나, spin lock 방식으로 동시에 많은 스레드가 thread 획득 대기 상태라면 redis 에 부하가 갈 수 있음
+
+2. Redisson
+    - pub-sub 기반으로 lock 구현
+        pub-sub 기반 : 채널을 하나 만들고, lock 을 점유 중인 thread 가 lock 획득을 하려는 thread 에게 lock 해제를 전달해주면, 해당 thread 가 lock을 획득하기 위해 시도
+        Lettuce 와 다르게, 별도의 retry 로직을 작성할 필요 없음
+    - pub-sub 기반으로 redis 의 부하를 줄여 준다. lettuce 에 비해 구현이 복잡하고 별도의 라이브러리 필요
+    - lock을 라이브러리 차원에서 제공하기 때문에 라이브러리에 대해서 알아야 한다.
+
+재시도가 필요하지 않은 lock은 lettuce 활용
+재시도가 필요한 경우에는 redisson 활용
